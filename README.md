@@ -1,10 +1,10 @@
 # AWS Service Roles Manager
 
-A command-line tool for creating and deleting IAM Roles for each AWS service. Each service specific role will have the `PowerUserAccess` policy attached to it and only be assumable by that service.
+A command-line tool for creating and deleting IAM Roles for each AWS service. Each service-specific role will have the `PowerUserAccess` policy attached to it and only be assumable by that service.
 
 ## Why
 
-In sandpit accounts, we want to minimise the number of miscelanious IAM Roles that are created. Users can quickly select these IAM Roles when experimenting with different AWS services without polluting AWS accounts with hundreds or thousands of abandoned IAM Roles.
+In sandpit accounts, we want to minimise the number of miscellaneous IAM Roles that are created. Users can quickly select these IAM Roles when experimenting with different AWS services without polluting AWS accounts with hundreds or thousands of abandoned IAM Roles.
 
 ## Installation
 
