@@ -9,7 +9,11 @@ In sandpit accounts, we want to minimise the number of miscelanious IAM Roles th
 ## Installation
 
 ```bash
-git clone https://github.com/servian/aws-service-roles-manager && cd ./aws-service-roles-manager
+git clone https://github.com/servian/aws-service-roles-manager
+```
+
+```bash
+cd aws-service-roles-manager/
 ```
 
 ```bash
