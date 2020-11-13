@@ -14,7 +14,7 @@ import click
     help="Create or delete AWS service roles.",
 )
 @click.option("--role-suffix", default="power-user", help="AWS role name suffix.")
-@click.option("--auto-cleanup-api", help="AWS Auto Cleanup API URL.")
+@click.option("--auto-cleanup-api", help="AWS Auto Cleanup Create Whitelist API URL.")
 @click.option("--aws-profile", help="AWS profile name.")
 def main(create, role_suffix, auto_cleanup_api, aws_profile):
     if aws_profile not in (None, ""):
