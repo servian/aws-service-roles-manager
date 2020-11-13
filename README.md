@@ -43,6 +43,24 @@ Each new IAM Role is attached the `PowerUserAccess` IAM Policy. If you would lik
 
 Some AWS services cannot assume roles, and hence they're skipped when running this tool. If you'd like to modify which AWS services IAM Roles are created for, you can do this within the `src/aws_service_roles_manager/cli.py` by modifying the `skip_services` list.
 
+## Permissions
+
+AWS Service Roles Manager requires a user with the following IAM permissions:
+
+| Action                            |
+| --------------------------------- |
+| iam:AddRoleToInstanceProfile      |
+| iam:AttachRolePolicy              |
+| iam:CreateInstanceProfile         |
+| iam:CreateRole                    |
+| iam:DeleteInstanceProfile         |
+| iam:DeleteRole                    |
+| iam:DetachRolePolicy              |
+| iam:GetRole                       |
+| iam:ListAttachedRolePolicies      |
+| iam:RemoveRoleFromInstanceProfile |
+| servicequotas:ListServices        |
+
 ## AWS Auto Cleanup
 
-If you're using AWS Auto Cleanup (v1.2.0+) alongside this CLI then you know eventually these roles may be deleted by Auto Cleanup. To solve this issue, we've introduced `--auto-cleanup-api` as a CLI parameter. Simply pass in your AWS Auto Cleanup Create Whitelist API URL (e.g., `https://api-id.execute-api.region.amazonaws.com/stage/whitelist/entry`) which can be found inside the `serverless.manifest.json` file and AWS Service Roles Manager will take care of managing the AWS Auto Cleanup whitelist.
+If you're using AWS Auto Cleanup (v1.2.0+) alongside this AWS Service Roles Manager then you know eventually these roles may be deleted by Auto Cleanup. To solve this issue, AWS Service Roles Manager can add each IAM Role to your AWS Auto Cleanup whitelist. Simply pass in your AWS Auto Cleanup Create Whitelist API URL (e.g., `https://api-id.execute-api.region.amazonaws.com/stage/whitelist/entry`) which can be found inside the `serverless.manifest.json` file and AWS Service Roles Manager will take care of the rest.
