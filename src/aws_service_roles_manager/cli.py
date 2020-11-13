@@ -1,5 +1,6 @@
 import asyncio
 import json
+import requests
 
 import boto3
 import click
@@ -13,8 +14,9 @@ import click
     help="Create or delete AWS service roles.",
 )
 @click.option("--role-suffix", default="power-user", help="AWS role name suffix.")
+@click.option("--auto-cleanup-api", help="AWS Auto Cleanup API URL.")
 @click.option("--aws-profile", help="AWS profile name.")
-def main(create, role_suffix, aws_profile):
+def main(create, role_suffix, auto_cleanup_api, aws_profile):
     if aws_profile not in (None, ""):
         boto3.setup_default_session(profile_name=aws_profile)
 
@@ -46,12 +48,12 @@ def main(create, role_suffix, aws_profile):
                 role_name = f"{service_name}-{role_suffix}"
 
                 if create:
-                    create_role(client_iam, service_name, role_name)
+                    create_role(client_iam, service_name, role_name, auto_cleanup_api)
                 else:
-                    delete_role(client_iam, service_name, role_name)
+                    delete_role(client_iam, service_name, role_name, auto_cleanup_api)
 
 
-def create_role(client_iam, service_name, role_name):
+def create_role(client_iam, service_name, role_name, auto_cleanup_api):
     policy_arns = ["arn:aws:iam::aws:policy/PowerUserAccess"]
     assume_role_policy = json.dumps(
         {
@@ -86,6 +88,32 @@ def create_role(client_iam, service_name, role_name):
     else:
         click.secho(f"Created new IAM Role '{role_name}'.", fg="green")
 
+        if auto_cleanup_api not in (None, ""):
+            try:
+                response = requests.post(
+                    auto_cleanup_api,
+                    params={
+                        "resource_id": f"iam:role:{role_name}",
+                        "owner": "",
+                        "comment": "AWS Service Roles Manager",
+                        "permanent": True,
+                    },
+                    headers={
+                        "User-Agent": "AWSServiceRolesManager/0.1",
+                    },
+                )
+
+                if response.status_code != 201:
+                    click.secho(
+                        f"Could not add IAM Role '{role_name}' to AWS Auto Cleanup whitelist.",
+                        fg="red",
+                    )
+            except:
+                click.secho(
+                    f"Could not add IAM Role '{role_name}' to AWS Auto Cleanup whitelist.",
+                    fg="red",
+                )
+
         if service_name == "ec2":
             try:
                 client_iam.create_instance_profile(InstanceProfileName=role_name)
@@ -111,7 +139,7 @@ def create_role(client_iam, service_name, role_name):
                 )
 
 
-def delete_role(client_iam, service_name, role_name):
+def delete_role(client_iam, service_name, role_name, auto_cleanup_api):
     try:
         response = client_iam.get_role(RoleName=role_name).get("Role")
     except:
@@ -169,6 +197,27 @@ def delete_role(client_iam, service_name, role_name):
                     click.secho(f"Could not delete IAM Role '{role_name}'.", fg="red")
                 else:
                     click.secho(f"Deleted IAM Role '{role_name}'.", fg="green")
+
+                    if auto_cleanup_api not in (None, ""):
+                        try:
+                            response = requests.delete(
+                                auto_cleanup_api,
+                                params={"resource_id": f"iam:role:{role_name}"},
+                                headers={
+                                    "User-Agent": "AWSServiceRolesManager/0.1",
+                                },
+                            )
+
+                            if response.status_code != 200:
+                                click.secho(
+                                    f"Could not delete IAM Role '{role_name}' from AWS Auto Cleanup whitelist.",
+                                    fg="red",
+                                )
+                        except:
+                            click.secho(
+                                f"Could not delete IAM Role '{role_name}' from AWS Auto Cleanup whitelist.",
+                                fg="red",
+                            )
 
 
 if __name__ == "__main__":
